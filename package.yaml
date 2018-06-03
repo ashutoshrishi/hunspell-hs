@@ -14,9 +14,12 @@ when:
   - condition: os(darwin)
     include-dirs: /usr/local/opt/hunspell/include/hunspell/
     extra-lib-dirs: /usr/local/opt/hunspell/lib
+    extra-libraries: hunspell-1.6
 
-extra-libraries:
-  - hunspell-1.6
+when:
+  - condition: os(linux)
+    extra-libraries: hunspell
+
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
