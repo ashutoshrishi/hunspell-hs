@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass           #-}
-{-# LANGUAGE DeriveGeneric            #-}
 {-# LANGUAGE EmptyDataDecls           #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-|
@@ -17,12 +15,10 @@ module Language.Hunspell
     , SpellChecker
   ) where
 
-import           Control.Concurrent.MVar
-import           Control.DeepSeq         (NFData)
+import           Control.Concurrent.STM
 import           Foreign
 import           Foreign.C.String
 import           Foreign.C.Types
-import           GHC.Generics            (Generic)
 
 -- |Initialise a new `SpellChecker` with the `.aff` and `.dic`
 -- dictionary files.
@@ -33,29 +29,29 @@ createSpellChecker affpath dicpath = do
   withCString affpath $ \aff ->
     withCString dicpath $ \dic -> do
       ptr <- newForeignPtr hunspellDestroy (hunspellCreate aff dic)
-      SpellChecker <$> newMVar ptr
+      SpellChecker <$> atomically (newTMVar ptr)
 
 -- |Check for correctness of a word.
 spell :: SpellChecker -> String -> IO Bool
-spell SpellChecker{hunPtr=mvar} word = do
+spell SpellChecker{hunPtr=tmvar} word = do
   withCString word $ \word' -> do
-    handlePtr <- takeMVar mvar
+    handlePtr <- atomically $ takeTMVar tmvar
     result <- withForeignPtr handlePtr (flip hunspellSpell word')
-    putMVar mvar handlePtr
+    atomically $ putTMVar tmvar handlePtr
     return (if result == 0 then False else True)
 
 -- |Return spelling suggestions for a word.
 suggest :: SpellChecker -> String -> IO [String]
-suggest SpellChecker {hunPtr = mvar} word = do
+suggest SpellChecker {hunPtr = tmvar} word = do
   withCString word $ \word' ->
     alloca $ \ptr -> do
-      handlePtr <- takeMVar mvar
-      len <-
-        withForeignPtr handlePtr $ \handle -> hunspellSuggest handle ptr word'
-      putMVar mvar handlePtr
-      if len == 0
-        then return []
-        else do
+    handlePtr <- atomically $ takeTMVar tmvar
+    len <-
+      withForeignPtr handlePtr $ \handle -> hunspellSuggest handle ptr word'
+    atomically $ putTMVar tmvar handlePtr
+    if len == 0
+      then return []
+      else do
           arrayPtr <- peek ptr
           cstrings <- peekArray (fromIntegral len) arrayPtr
           results <- mapM peekCString cstrings
@@ -72,8 +68,8 @@ type Hunhandle = Ptr Hunspell
 -- | Main type to hold a `MVar` wrapped reference to the Hunspell
 -- handle pointer.
 data SpellChecker = SpellChecker
-  { hunPtr :: MVar (ForeignPtr Hunspell)
-  } deriving (Generic, NFData)
+  { hunPtr :: TMVar (ForeignPtr Hunspell)
+  }
 
 foreign import ccall "Hunspell_create" hunspellCreate
   :: CString -> CString -> Hunhandle

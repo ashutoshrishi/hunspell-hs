@@ -30,7 +30,7 @@ when:
 
 dependencies:
 - base >= 4.7 && < 5
-- deepseq
+- stm
 
 library:
   source-dirs: src
