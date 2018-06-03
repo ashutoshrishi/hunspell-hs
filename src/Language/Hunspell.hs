@@ -69,6 +69,8 @@ data Hunspell
 -- | Ptr to the Hunspell struct
 type Hunhandle = Ptr Hunspell
 
+-- | Main type to hold a `MVar` wrapped reference to the Hunspell
+-- handle pointer.
 data SpellChecker = SpellChecker
   { hunPtr :: MVar (ForeignPtr Hunspell)
   } deriving (Generic, NFData)

@@ -2,7 +2,7 @@ name:                hunspell-hs
 version:             0.1.0.0
 github:              "ashutoshrishi/hunspell-hs"
 license:             BSD3
-author:              "Rishi"
+author:              "Ashutosh Rishi Ranjan"
 maintainer:          "ashutoshrishi92@gmail.com"
 copyright:           "2018 Rishi name here"
 
@@ -10,25 +10,23 @@ extra-source-files:
 - README.md
 - ChangeLog.md
 
-when:
-  - condition: os(darwin)
-    include-dirs: /usr/local/opt/hunspell/include/hunspell/
-    extra-lib-dirs: /usr/local/opt/hunspell/lib
-    extra-libraries: hunspell-1.6
-
-when:
-  - condition: os(linux)
-    extra-libraries: hunspell
-
 
 # Metadata used when publishing your package
-# synopsis:            Short description of your package
-# category:            Web
+synopsis:            Hunspell FFI bindings for spell checking.
+category:            Language
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/ashutoshrishi/hunspell-hs#readme>
+description: Please see the README on GitHub at <https://github.com/ashutoshrishi/hunspell-hs#readme>
+
+when:
+  - condition: os(linux)
+    extra-libraries: hunspell
+  - condition: os(darwin)
+    include-dirs: /usr/local/opt/hunspell/include/hunspell/
+    extra-lib-dirs: /usr/local/opt/hunspell/lib
+    extra-libraries: hunspell-1.6
 
 dependencies:
 - base >= 4.7 && < 5
