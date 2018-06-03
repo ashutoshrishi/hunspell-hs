@@ -1,0 +1,46 @@
+name:                hunspell-hs
+version:             0.1.0.0
+github:              "githubuser/hunspell-hs"
+license:             BSD3
+author:              "Author name here"
+maintainer:          "example@example.com"
+copyright:           "2018 Author name here"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+include-dirs:
+  - /usr/local/opt/hunspell/include/hunspell/
+  
+extra-lib-dirs:
+  - /usr/local/opt/hunspell/lib
+
+ld-options:
+  - -lhunspell-1.6
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/githubuser/hunspell-hs#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+
+tests:
+  hunspell-hs-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hunspell-hs
