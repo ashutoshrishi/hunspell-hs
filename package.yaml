@@ -16,8 +16,8 @@ include-dirs:
 extra-lib-dirs:
   - /usr/local/opt/hunspell/lib
 
-ld-options:
-  - -lhunspell-1.6
+extra-libraries:
+  - hunspell-1.6
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -30,9 +30,22 @@ description:         Please see the README on GitHub at <https://github.com/ashu
 
 dependencies:
 - base >= 4.7 && < 5
+- deepseq
 
 library:
   source-dirs: src
+
+benchmarks:
+  hunspell-hs-bench:
+    main:                Main.hs
+    source-dirs:         benchmark
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hunspell-hs
+    - criterion
 
 tests:
   hunspell-hs-test:

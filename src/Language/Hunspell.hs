@@ -1,4 +1,6 @@
 {-# LANGUAGE EmptyDataDecls #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-|
 Module      : Language.Hunspell
@@ -19,6 +21,8 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 import Control.Concurrent.MVar
+import GHC.Generics (Generic)
+import Control.DeepSeq (NFData)
 
 -- |Initialise a new `SpellChecker` with the `.aff` and `.dic`
 -- dictionary files.
@@ -67,7 +71,7 @@ type Hunhandle = Ptr Hunspell
 
 data SpellChecker = SpellChecker
   { hunPtr :: MVar (ForeignPtr Hunspell)
-  }
+  } deriving (Generic, NFData)
 
 foreign import ccall "Hunspell_create" hunspellCreate
   :: CString -> CString -> Hunhandle
