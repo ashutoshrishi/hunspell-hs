@@ -1,6 +1,6 @@
-{-# LANGUAGE EmptyDataDecls #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveAnyClass           #-}
+{-# LANGUAGE DeriveGeneric            #-}
+{-# LANGUAGE EmptyDataDecls           #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 {-|
 Module      : Language.Hunspell
@@ -17,12 +17,12 @@ module Language.Hunspell
     , SpellChecker
   ) where
 
-import Foreign
-import Foreign.C.String
-import Foreign.C.Types
-import Control.Concurrent.MVar
-import GHC.Generics (Generic)
-import Control.DeepSeq (NFData)
+import           Control.Concurrent.MVar
+import           Control.DeepSeq         (NFData)
+import           Foreign
+import           Foreign.C.String
+import           Foreign.C.Types
+import           GHC.Generics            (Generic)
 
 -- |Initialise a new `SpellChecker` with the `.aff` and `.dic`
 -- dictionary files.

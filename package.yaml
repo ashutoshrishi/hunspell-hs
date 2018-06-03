@@ -10,11 +10,10 @@ extra-source-files:
 - README.md
 - ChangeLog.md
 
-include-dirs:
-  - /usr/local/opt/hunspell/include/hunspell/
-  
-extra-lib-dirs:
-  - /usr/local/opt/hunspell/lib
+when:
+  - condition: os(darwin)
+    include-dirs: /usr/local/opt/hunspell/include/hunspell/
+    extra-lib-dirs: /usr/local/opt/hunspell/lib
 
 extra-libraries:
   - hunspell-1.6
