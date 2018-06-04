@@ -5,11 +5,13 @@
 Haskell bindings for Hunspell with thread-safety in mind. The goal was
 to be able to use hunspell as an API in other project.
 
-Takes inspiration from the Golang bindings: https://github.com/akhenakh/hunspellgo
+Takes inspiration from the Golang bindings:
+https://github.com/akhenakh/hunspellgo
 
-# Usage
+# Installation
 
-This package needs to find the `libhunspell` shared library on your system.
+This package needs to find the `libhunspell` shared library on your
+system.
 
 On Linux (use your package manager to install `libhunspell-dev`):
 
@@ -18,3 +20,9 @@ On Linux (use your package manager to install `libhunspell-dev`):
 On Macos:
 
     brew install hunspell
+    
+
+# Usage 
+
+See the usage instructions in the module documentation for
+`Language.Hunspell`.
