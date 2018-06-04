@@ -3,10 +3,13 @@
 [![Build Status](https://travis-ci.com/ashutoshrishi/hunspell-hs.svg?branch=master)](https://travis-ci.com/ashutoshrishi/hunspell-hs)
 
 Haskell bindings for Hunspell with thread-safety in mind. The goal was
-to be able to use hunspell as an API in other project.
+to be able to serve hunspell as an API in a webserver.
 
 Takes inspiration from the Golang bindings:
 https://github.com/akhenakh/hunspellgo
+
+Please refer to the module description for `Language.Hunspell` on
+Hackage for more information.
 
 # Installation
 
@@ -21,8 +24,3 @@ On Macos:
 
     brew install hunspell
     
-
-# Usage 
-
-See the usage instructions in the module documentation for
-`Language.Hunspell`.

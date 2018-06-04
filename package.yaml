@@ -4,7 +4,7 @@ github:              "ashutoshrishi/hunspell-hs"
 license:             BSD3
 author:              "Ashutosh Rishi Ranjan"
 maintainer:          "ashutoshrishi92@gmail.com"
-copyright:           "2018 Rishi name here"
+copyright:           "2018 Ashutosh Rishi Ranjan"
 
 extra-source-files:
 - README.md
