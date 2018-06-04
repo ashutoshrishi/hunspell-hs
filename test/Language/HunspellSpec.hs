@@ -16,6 +16,12 @@ spec = do
         spell checker "color" `shouldReturn` False
       it "provides a stemming utility" $ \checker -> do
         stem checker "spelling" `shouldReturn` ["spelling", "spell"]
+      it "can add and remove a word" $ \checker -> do
+        spell checker "blahblah" `shouldReturn` False
+        add checker "blahblah"
+        spell checker "blahblah" `shouldReturn` True
+        remove checker "blahblah"
+        spell checker "blahblah" `shouldReturn` False
 
 correct :: SpellChecker -> String -> String -> IO Bool
 correct checker wrong right  = List.elem right <$> suggest checker wrong

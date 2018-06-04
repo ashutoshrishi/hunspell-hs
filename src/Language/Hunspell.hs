@@ -7,16 +7,40 @@ Copyright   : (c) Ashutosh Rishi Ranjan, 2018
 Maintainer  : ashutoshrishi92 at gmail
 -}
 module Language.Hunspell
-  ( -- * Creation
-      createSpellChecker, SpellChecker
+  ( -- * Usage
+    -- $usage
+
+    -- * Usage with threads
+    -- $threads
+
+    -- * Creation
+    createSpellChecker, SpellChecker
+
     -- * Hunspell API mappings
-    , spell, suggest, stem
+  , spell, suggest, stem, add, remove
+
   ) where
 
 import           Control.Concurrent.STM
 import           Foreign
 import           Foreign.C.String
 import           Foreign.C.Types
+
+-- $threads
+--
+-- Initialise a `SpellChecker` instance before you spawn your
+-- threads. After which, a SpellChecker instance can be used
+-- safely across the threads.
+
+
+-- $usage
+--
+-- The functions exported try to match the Hunspell API one-to-one.
+--
+-- @
+--     checker <- createSpellChecker "en_GB.aff" "en_GB.buf"
+--     suggest checker "splling" -- ["spelling", ...]
+-- @
 
 -- |Initialise a new `SpellChecker` with the `.aff` and `.dic`
 -- dictionary files.
@@ -49,7 +73,7 @@ suggest checker word = do
       freeList checker len resultsPtr
       return results
 
--- | Hunspell stemmer function
+-- |Hunspell stemmer function
 stem :: SpellChecker -> String -> IO [String]
 stem checker word = do
   withCString word $ \word' -> do
@@ -59,6 +83,16 @@ stem checker word = do
       results <- peekWords len resultsPtr
       freeList checker len resultsPtr
       return results
+
+-- |Add a word to the runtime dictionary.
+add :: SpellChecker -> String -> IO ()
+add checker word =
+  withCString word $ \word' -> withHandle checker (flip hunspellAdd word')
+
+-- |Remove a word from the runtime dictionary.
+remove :: SpellChecker -> String -> IO ()
+remove checker word =
+  withCString word $ \word' -> withHandle checker (flip hunspellRemove word')
 
 --------------------------------------------------------------------
 -- Internal                                                       --
@@ -121,3 +155,8 @@ foreign import ccall "Hunspell_suggest" hunspellSuggest
 
 foreign import ccall "Hunspell_stem" hunspellStem
   :: Hunhandle -> Ptr (Ptr CString) -> CString -> IO CInt
+
+foreign import ccall "Hunspell_add" hunspellAdd :: Hunhandle -> CString -> IO ()
+
+foreign import ccall "Hunspell_remove" hunspellRemove
+  :: Hunhandle -> CString -> IO ()
