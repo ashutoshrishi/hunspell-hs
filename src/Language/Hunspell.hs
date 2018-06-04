@@ -7,12 +7,10 @@ Copyright   : (c) Ashutosh Rishi Ranjan, 2018
 Maintainer  : ashutoshrishi92 at gmail
 -}
 module Language.Hunspell
-  ( -- * Initialisation
-      createSpellChecker
+  ( -- * Creation
+      createSpellChecker, SpellChecker
     -- * Hunspell API mappings
-    , spell, suggest
-    -- * Types
-    , SpellChecker
+    , spell, suggest, stem
   ) where
 
 import           Control.Concurrent.STM
@@ -29,11 +27,11 @@ createSpellChecker affpath dicpath = do
   withCString affpath $ \aff ->
     withCString dicpath $ \dic -> do
       ptr <- newForeignPtr hunspellDestroy (hunspellCreate aff dic)
-      SpellChecker <$> atomically (newTMVar ptr)
+      SpellChecker ptr <$> atomically (newTMVar ptr)
 
 -- |Check for correctness of a word.
 spell :: SpellChecker -> String -> IO Bool
-spell SpellChecker{hunPtr=tmvar} word = do
+spell SpellChecker{hunPtrVar=tmvar} word = do
   withCString word $ \word' -> do
     handlePtr <- atomically $ takeTMVar tmvar
     result <- withForeignPtr handlePtr (flip hunspellSpell word')
@@ -42,22 +40,52 @@ spell SpellChecker{hunPtr=tmvar} word = do
 
 -- |Return spelling suggestions for a word.
 suggest :: SpellChecker -> String -> IO [String]
-suggest SpellChecker {hunPtr = tmvar} word = do
+suggest checker word = do
   withCString word $ \word' ->
-    alloca $ \ptr -> do
-    handlePtr <- atomically $ takeTMVar tmvar
-    len <-
-      withForeignPtr handlePtr $ \handle -> hunspellSuggest handle ptr word'
-    atomically $ putTMVar tmvar handlePtr
-    if len == 0
-      then return []
-      else do
-          arrayPtr <- peek ptr
-          cstrings <- peekArray (fromIntegral len) arrayPtr
-          results <- mapM peekCString cstrings
-          withForeignPtr handlePtr $ \handle -> hunspellFreeList handle ptr len
-          return results
+    alloca $ \resultsPtr -> do
+      len <-
+        withHandle checker $ \handle -> hunspellSuggest handle resultsPtr word'
+      results <- peekWords len resultsPtr
+      freeList checker len resultsPtr
+      return results
 
+-- | Hunspell stemmer function
+stem :: SpellChecker -> String -> IO [String]
+stem checker word = do
+  withCString word $ \word' -> do
+    alloca $ \resultsPtr -> do
+      len <-
+        withHandle checker $ \handle -> hunspellStem handle resultsPtr word'
+      results <- peekWords len resultsPtr
+      freeList checker len resultsPtr
+      return results
+
+--------------------------------------------------------------------
+-- Internal                                                       --
+--------------------------------------------------------------------
+
+freeList :: SpellChecker -> CInt -> Ptr (Ptr CString) -> IO ()
+freeList SpellChecker {hunPtr = handlePtr} len ptr =
+  withForeignPtr handlePtr $ \handle -> hunspellFreeList handle ptr len
+
+withHandle :: SpellChecker -> (Hunhandle -> IO a) -> IO a
+withHandle SpellChecker {hunPtrVar = tmvar} action = do
+  handlePtr <- atomically $ takeTMVar tmvar
+  result <- withForeignPtr handlePtr action
+  atomically $ putTMVar tmvar handlePtr
+  return result
+
+peekWords :: CInt -> Ptr (Ptr CString) -> IO [String]
+peekWords 0 _ = return []
+peekWords len ptr = do
+  arrayPtr <- peek ptr
+  cstrings <- peekArray (fromIntegral len) arrayPtr
+  mapM peekCString cstrings
+
+
+--------------------------------------------------------------------
+-- Types                                                          --
+--------------------------------------------------------------------
 
 -- | Opaque Hunspell struct
 data Hunspell
@@ -68,8 +96,13 @@ type Hunhandle = Ptr Hunspell
 -- | Main type to hold a `MVar` wrapped reference to the Hunspell
 -- handle pointer.
 data SpellChecker = SpellChecker
-  { hunPtr :: TMVar (ForeignPtr Hunspell)
+  { hunPtr    :: ForeignPtr Hunspell
+  , hunPtrVar :: TMVar (ForeignPtr Hunspell)
   }
+
+--------------------------------------------------------------------
+-- FFI                                                            --
+--------------------------------------------------------------------
 
 foreign import ccall "Hunspell_create" hunspellCreate
   :: CString -> CString -> Hunhandle
@@ -84,4 +117,7 @@ foreign import ccall "Hunspell_spell" hunspellSpell
   :: Hunhandle -> CString -> IO CInt
 
 foreign import ccall "Hunspell_suggest" hunspellSuggest
+  :: Hunhandle -> Ptr (Ptr CString) -> CString -> IO CInt
+
+foreign import ccall "Hunspell_stem" hunspellStem
   :: Hunhandle -> Ptr (Ptr CString) -> CString -> IO CInt

@@ -1,8 +1,8 @@
 module Language.HunspellSpec where
 
-import Language.Hunspell
-import qualified Data.List as List
-import Test.Hspec
+import qualified Data.List         as List
+import           Language.Hunspell
+import           Test.Hspec
 
 spec :: Spec
 spec = do
@@ -14,7 +14,8 @@ spec = do
       it "checks for correct words" $ \checker -> do
         spell checker "speling" `shouldReturn` False
         spell checker "color" `shouldReturn` False
-
+      it "provides a stemming utility" $ \checker -> do
+        stem checker "spelling" `shouldReturn` ["spelling", "spell"]
 
 correct :: SpellChecker -> String -> String -> IO Bool
 correct checker wrong right  = List.elem right <$> suggest checker wrong
