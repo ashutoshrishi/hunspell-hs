@@ -13,6 +13,9 @@ module Language.Hunspell
     -- * Usage with threads
     -- $threads
 
+    -- * Hunspell FFI requirements
+    -- $ffi
+
     -- * Creation
     createSpellChecker, SpellChecker
 
@@ -28,7 +31,7 @@ import           Foreign.C.Types
 
 -- $threads
 --
--- Initialise a `SpellChecker` instance before you spawn your
+-- Initialise a 'SpellChecker' instance before you spawn your
 -- threads. After which, a SpellChecker instance can be used
 -- safely across the threads.
 
@@ -37,12 +40,25 @@ import           Foreign.C.Types
 --
 -- The functions exported try to match the Hunspell API one-to-one.
 --
--- @
---     checker <- createSpellChecker "en_GB.aff" "en_GB.buf"
---     suggest checker "splling" -- ["spelling", ...]
--- @
+-- >>> checker <- createSpellChecker "en_GB.aff" "en_GB.buf"
+-- >>> suggest checker "splling"
+-- ["spelling", ...]
 
--- |Initialise a new `SpellChecker` with the `.aff` and `.dic`
+-- $ffi
+--
+-- This library expects that GHC can find the Hunspell shared library.
+--
+-- On Linux you need to install the @libhunspell-dev@ package from
+-- your package manager:
+--
+-- > sudo apt-get install libhunspell-dev
+--
+-- On Macos you can install @hunspell@ from brew since the default
+-- package config looks into the Homebrew include and lib dirs:
+--
+-- > brew install hunspell
+
+-- |Initialise a new 'SpellChecker' with the '.aff' and '.dic'
 -- dictionary files.
 createSpellChecker :: String -- ^ .aff file path
                    -> String -- ^ .dic file path
@@ -127,7 +143,7 @@ data Hunspell
 -- | Ptr to the Hunspell struct
 type Hunhandle = Ptr Hunspell
 
--- | Main type to hold a `MVar` wrapped reference to the Hunspell
+-- | Main type to hold a 'TMVar' wrapped reference to the Hunspell
 -- handle pointer.
 data SpellChecker = SpellChecker
   { hunPtr    :: ForeignPtr Hunspell
