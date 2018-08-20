@@ -22,9 +22,13 @@ module Language.Hunspell
     -- * Hunspell API mappings
   , spell, suggest, stem, add, remove
 
+    -- * More compound functionality
+  , suggestions
+
   ) where
 
 import           Control.Concurrent.STM
+import           Control.Monad          (foldM)
 import           Foreign
 import           Foreign.C.String
 import           Foreign.C.Types
@@ -63,7 +67,7 @@ import           Foreign.C.Types
 createSpellChecker :: String -- ^ .aff file path
                    -> String -- ^ .dic file path
                    -> IO SpellChecker
-createSpellChecker affpath dicpath = do
+createSpellChecker affpath dicpath =
   withCString affpath $ \aff ->
     withCString dicpath $ \dic -> do
       ptr <- newForeignPtr hunspellDestroy (hunspellCreate aff dic)
@@ -71,59 +75,83 @@ createSpellChecker affpath dicpath = do
 
 -- |Check for correctness of a word.
 spell :: SpellChecker -> String -> IO Bool
-spell SpellChecker{hunPtrVar=tmvar} word = do
-  withCString word $ \word' -> do
-    handlePtr <- atomically $ takeTMVar tmvar
-    result <- withForeignPtr handlePtr (flip hunspellSpell word')
-    atomically $ putTMVar tmvar handlePtr
-    return (if result == 0 then False else True)
+spell checker word =
+  withCString word $ \cword ->
+    (/= 0) <$> withHandle checker (`hunspellSpell` cword)
 
 -- |Return spelling suggestions for a word.
 suggest :: SpellChecker -> String -> IO [String]
-suggest checker word = do
+suggest checker word =
   withCString word $ \word' ->
     alloca $ \resultsPtr -> do
       len <-
         withHandle checker $ \handle -> hunspellSuggest handle resultsPtr word'
-      results <- peekWords len resultsPtr
-      freeList checker len resultsPtr
-      return results
+      peekResults checker len resultsPtr
+
+
 
 -- |Hunspell stemmer function
 stem :: SpellChecker -> String -> IO [String]
-stem checker word = do
-  withCString word $ \word' -> do
+stem checker word =
+  withCString word $ \word' ->
     alloca $ \resultsPtr -> do
       len <-
         withHandle checker $ \handle -> hunspellStem handle resultsPtr word'
-      results <- peekWords len resultsPtr
-      freeList checker len resultsPtr
-      return results
+      peekResults checker len resultsPtr
 
 -- |Add a word to the runtime dictionary.
 add :: SpellChecker -> String -> IO ()
 add checker word =
-  withCString word $ \word' -> withHandle checker (flip hunspellAdd word')
+  withCString word $ \word' -> withHandle checker (`hunspellAdd` word')
 
 -- |Remove a word from the runtime dictionary.
 remove :: SpellChecker -> String -> IO ()
 remove checker word =
-  withCString word $ \word' -> withHandle checker (flip hunspellRemove word')
+  withCString word $ \word' -> withHandle checker (`hunspellRemove` word')
+
+
+-- | Multi word spelling suggestions.
+-- Takes a list of possibly incorrect spellings, and returns the top 5
+-- spelling corrections for all the incorrect spellings. Internally
+-- uses both `spell` and `suggest`.
+suggestions :: SpellChecker -> [String] -> IO [(String, [String])]
+suggestions checker = foldM collect []
+  where
+    collect acc word =
+      withCString word $ \cword -> do
+        correct <- (/= 0) <$> withHandle checker (`hunspellSpell` cword)
+        if correct
+        then return acc
+        else
+          alloca $ \resultsPtr -> do
+            len <-
+              withHandle checker $ \handle -> hunspellSuggest handle resultsPtr cword
+            results <- take 5 <$> peekResults checker len resultsPtr
+            return ((word, results) : acc)
+
 
 --------------------------------------------------------------------
 -- Internal                                                       --
 --------------------------------------------------------------------
 
-freeList :: SpellChecker -> CInt -> Ptr (Ptr CString) -> IO ()
-freeList SpellChecker {hunPtr = handlePtr} len ptr =
-  withForeignPtr handlePtr $ \handle -> hunspellFreeList handle ptr len
-
+-- | Atomically perform an action with the foreign Hunspell
+-- instance. Uses a mutex type lock for synchronisation and safety.
 withHandle :: SpellChecker -> (Hunhandle -> IO a) -> IO a
-withHandle SpellChecker {hunPtrVar = tmvar} action = do
-  handlePtr <- atomically $ takeTMVar tmvar
+withHandle SpellChecker {hunPtr = handlePtr} action = do
+  -- handlePtr <- atomically $ takeTMVar tmvar
   result <- withForeignPtr handlePtr action
-  atomically $ putTMVar tmvar handlePtr
+  -- atomically $ putTMVar tmvar handlePtr
   return result
+
+-- | Read the suggestion results (encoded as a array of length
+-- 'len' containing `CString` words) from a 'resultsPtr'. The pointer
+-- is cleaned up after reading.
+peekResults :: SpellChecker -> CInt -> Ptr (Ptr CString) -> IO [String]
+peekResults SpellChecker {hunPtr = handlePtr} len resultsPtr =
+  withForeignPtr handlePtr $ \handle -> do
+    results <- peekWords len resultsPtr
+    hunspellFreeList handle resultsPtr len
+    return results
 
 peekWords :: CInt -> Ptr (Ptr CString) -> IO [String]
 peekWords 0 _ = return []
@@ -131,7 +159,6 @@ peekWords len ptr = do
   arrayPtr <- peek ptr
   cstrings <- peekArray (fromIntegral len) arrayPtr
   mapM peekCString cstrings
-
 
 --------------------------------------------------------------------
 -- Types                                                          --
