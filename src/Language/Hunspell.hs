@@ -137,10 +137,10 @@ suggestions checker = foldM collect []
 -- | Atomically perform an action with the foreign Hunspell
 -- instance. Uses a mutex type lock for synchronisation and safety.
 withHandle :: SpellChecker -> (Hunhandle -> IO a) -> IO a
-withHandle SpellChecker {hunPtr = handlePtr} action = do
-  -- handlePtr <- atomically $ takeTMVar tmvar
+withHandle SpellChecker {hunPtrVar = tmvar} action = do
+  handlePtr <- atomically $ takeTMVar tmvar
   result <- withForeignPtr handlePtr action
-  -- atomically $ putTMVar tmvar handlePtr
+  atomically $ putTMVar tmvar handlePtr
   return result
 
 -- | Read the suggestion results (encoded as a array of length
