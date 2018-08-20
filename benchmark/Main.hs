@@ -1,15 +1,21 @@
 module Main where
 
-import Language.Hunspell
-import Criterion.Main
+import           Control.DeepSeq
+import           Criterion.Main
+import           Language.Hunspell
 
 main :: IO ()
 main = defaultMain
-  [ env setupEnv $ \ ~(checker) ->
-      bench "suggestions" $ nfIO (runSuggestions checker) ]
+  [ env setupEnv $ \ ~(Env checker) ->
+      bench "single suggestion" $ nfIO (runSuggestions checker) ]
 
 runSuggestions :: SpellChecker -> IO [String]
 runSuggestions checker = suggest checker "speiling"
 
-setupEnv :: IO SpellChecker
-setupEnv = createSpellChecker "dictionaries/en_GB.aff" "dictionaries/en_GB.dic"
+newtype Env = Env SpellChecker
+
+instance NFData Env where
+  rnf (Env checker) = seq checker ()
+
+setupEnv :: IO Env
+setupEnv = Env <$> createSpellChecker "dictionaries/en_GB.aff" "dictionaries/en_GB.dic"

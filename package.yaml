@@ -44,8 +44,9 @@ benchmarks:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - hunspell-hs
     - criterion
+    - deepseq
+    - hunspell-hs
 
 tests:
   hunspell-hs-test:
