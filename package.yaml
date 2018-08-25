@@ -1,5 +1,5 @@
 name:                hunspell-hs
-version:             0.1.0.0
+version:             0.1.0.1
 github:              "ashutoshrishi/hunspell-hs"
 license:             BSD3
 author:              "Ashutosh Rishi Ranjan"
@@ -9,6 +9,7 @@ copyright:           "2018 Ashutosh Rishi Ranjan"
 extra-source-files:
 - README.md
 - ChangeLog.md
+- dictionaries/*
 
 
 # Metadata used when publishing your package
@@ -22,7 +23,7 @@ description: Please see the README on GitHub at <https://github.com/ashutoshrish
 
 when:
   - condition: os(linux)
-    extra-libraries: hunspell
+    pkg-config-dependencies: hunspell
   - condition: os(darwin)
     include-dirs: /usr/local/opt/hunspell/include/hunspell/
     extra-lib-dirs: /usr/local/opt/hunspell/lib
