@@ -110,10 +110,10 @@ remove checker word =
   withCString word $ \word' -> withHandle checker (`hunspellRemove` word')
 
 
--- | Multi word spelling suggestions.
--- Takes a list of possibly incorrect spellings, and returns the top 5
--- spelling corrections for all the incorrect spellings. Internally
--- uses both `spell` and `suggest`.
+-- | Multi word spelling suggestions. Takes a list of possibly
+-- incorrect spellings, and returns the spelling corrections for all
+-- the incorrect spellings. Internally uses both `spell` and
+-- `suggest`.
 suggestions :: SpellChecker -> [String] -> IO [(String, [String])]
 suggestions checker = foldM collect []
   where
@@ -126,7 +126,7 @@ suggestions checker = foldM collect []
           alloca $ \resultsPtr -> do
             len <-
               withHandle checker $ \handle -> hunspellSuggest handle resultsPtr cword
-            results <- take 5 <$> peekResults checker len resultsPtr
+            results <- peekResults checker len resultsPtr
             return ((word, results) : acc)
 
 
