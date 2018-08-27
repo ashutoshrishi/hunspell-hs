@@ -57,9 +57,9 @@ checks = [ ("speling", "spelling"),
 
 checkResults :: [(String, [String])]
 checkResults =
-  [ ("badd", ["bad", "add", "baddy", "bade", "band"])
+  [ ("badd", ["bad", "add", "baddy", "bade", "band", "bard","bald","baud","bawd","Ladd","b add","bad d"])
   , ("helllo", ["hello", "hell lo", "hell-lo", "hellhole", "hell"])
-  , ("speling", ["spieling", "spelling", "spewing", "peeling", "splining"])
+  , ("speling", ["spieling", "spelling", "spewing", "peeling", "splining", "splinting"])
   ]
 
 
