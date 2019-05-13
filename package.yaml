@@ -27,7 +27,7 @@ when:
   - condition: os(darwin)
     include-dirs: /usr/local/opt/hunspell/include/hunspell/
     extra-lib-dirs: /usr/local/opt/hunspell/lib
-    extra-libraries: hunspell-1.6
+    extra-libraries: hunspell-1.7
 
 dependencies:
 - base >= 4.7 && < 5
