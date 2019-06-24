@@ -32,6 +32,7 @@ when:
 dependencies:
 - base >= 4.7 && < 5
 - stm
+- bytestring
 
 library:
   source-dirs: src

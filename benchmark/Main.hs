@@ -2,20 +2,37 @@ module Main where
 
 import           Control.DeepSeq
 import           Criterion.Main
+import           Data.Maybe        (fromMaybe)
 import           Language.Hunspell
 
 main :: IO ()
 main = defaultMain
-  [ env setupEnv $ \ ~(Env checker) ->
-      bench "single suggestion" $ nfIO (runSuggestions checker) ]
+  [ env setupEnv $ \ ~(~(Checker checker), _para) ->
+      bench "single suggestion" $ nfIO (runSuggestion checker)
+  , env setupEnv $ \ ~(~(Checker checker), para) ->
+      bench "paragraph suggestion" $ nfIO (runSuggestions checker para)
+  ]
 
-runSuggestions :: SpellChecker -> IO [String]
-runSuggestions checker = suggest checker "speiling"
+runSuggestion :: SpellChecker -> IO [String]
+runSuggestion checker = suggest checker "speiling"
 
-newtype Env = Env SpellChecker
+runSuggestions :: SpellChecker -> String -> IO String
+runSuggestions checker p =
+  unwords <$> mapM (autoCorrect checker) (words p)
 
-instance NFData Env where
-  rnf (Env checker) = seq checker ()
+-- | Auto correct a single word from the top suggestion.
+autoCorrect :: SpellChecker -> String -> IO String
+autoCorrect checker word = fromMaybe word . head' <$> suggest checker word
 
-setupEnv :: IO Env
-setupEnv = Env <$> createSpellChecker "dictionaries/en_GB.aff" "dictionaries/en_GB.dic"
+head' :: [a] -> Maybe a
+head' []    = Nothing
+head' (x:_) = Just x
+
+newtype Checker = Checker SpellChecker
+
+instance NFData Checker where
+  rnf (Checker c) = seq c ()
+
+setupEnv :: IO (Checker, String)
+setupEnv = (,) . Checker <$> createSpellChecker "dictionaries/en_GB.aff" "dictionaries/en_GB.dic"
+                         <*> readFile "benchmark/spell-testset1.txt"
