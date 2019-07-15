@@ -18,7 +18,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: lts-13.26
+resolver: nightly-2019-06-28
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -57,12 +57,7 @@ packages:
 # arch: i386
 # arch: x86_64
 #
-# Extra directories used by stack for building
-extra-include-dirs:
-  - /usr/local/opt/hunspell/include/hunspell/
-  
-extra-lib-dirs:
-  - /usr/local/opt/hunspell/lib
+
 #
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
