@@ -64,8 +64,8 @@ import           Foreign.C.Types
 
 -- |Initialise a new 'SpellChecker' with the '.aff' and '.dic'
 -- dictionary files.
-createSpellChecker :: String -- ^ .aff file path
-                   -> String -- ^ .dic file path
+createSpellChecker :: FilePath -- ^ .aff file path
+                   -> FilePath -- ^ .dic file path
                    -> IO SpellChecker
 createSpellChecker affpath dicpath =
   withCString affpath $ \aff ->
