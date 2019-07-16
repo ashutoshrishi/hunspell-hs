@@ -21,13 +21,13 @@ category:            Language
 # common to point users to the README.md file.
 description: Please see the README on GitHub at <https://github.com/ashutoshrishi/hunspell-hs#readme>
 
-# when:
-#   - condition: os(linux)
-#     pkg-config-dependencies: hunspell
-#   - condition: os(darwin)
-#     include-dirs: /usr/local/opt/hunspell/include/hunspell/
-#     extra-lib-dirs: /usr/local/opt/hunspell/lib
-#     extra-libraries: hunspell-1.7
+when:
+  - condition: os(linux)
+    pkg-config-dependencies: hunspell
+  - condition: os(darwin)
+    include-dirs: /usr/local/opt/hunspell/include/hunspell/
+    extra-lib-dirs: /usr/local/opt/hunspell/lib
+    extra-libraries: hunspell-1.7
 
 dependencies:
 - base >= 4.7 && < 5
