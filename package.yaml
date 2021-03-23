@@ -1,20 +1,19 @@
-name:                hunspell-hs
-version:             0.2.0.0
-github:              "ashutoshrishi/hunspell-hs"
-license:             BSD3
-author:              "Ashutosh Rishi Ranjan"
-maintainer:          "ashutoshrishi92@gmail.com"
-copyright:           "2018 Ashutosh Rishi Ranjan"
+name: hunspell-hs
+version: 0.2.0.0
+github: "ashutoshrishi/hunspell-hs"
+license: BSD3
+author: "Rishi Ranjan"
+maintainer: "Rishi <arishiranjan@cadmus.io>"
+copyright: "2018 Ashutosh Rishi Ranjan"
 
 extra-source-files:
-- README.md
-- ChangeLog.md
-- dictionaries/*
-
+  - README.md
+  - ChangeLog.md
+  - dictionaries/*
 
 # Metadata used when publishing your package
-synopsis:            Hunspell thread-safe FFI bindings for spell checking.
-category:            Language
+synopsis: Hunspell thread-safe FFI bindings for spell checking.
+category: Language
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
@@ -24,33 +23,33 @@ description: Please see the README on GitHub at <https://github.com/ashutoshrish
 pkg-config-dependencies: hunspell
 
 dependencies:
-- base >= 4.7 && < 5
-- stm
+  - base >= 4.7 && < 5
+  - stm
 
 library:
   source-dirs: src
 
 benchmarks:
   hunspell-hs-bench:
-    main:                Main.hs
-    source-dirs:         benchmark
+    main: Main.hs
+    source-dirs: benchmark
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - criterion
-    - deepseq
-    - hunspell-hs
+      - criterion
+      - deepseq
+      - hunspell-hs
 
 tests:
   hunspell-hs-test:
-    main:                Spec.hs
-    source-dirs:         test
+    main: Spec.hs
+    source-dirs: test
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - hunspell-hs
-    - hspec
+      - hunspell-hs
+      - hspec

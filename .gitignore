@@ -2,3 +2,4 @@
 .stack-work/
 hunspell-hs.cabal
 *~
+dist-newstyle/

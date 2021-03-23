@@ -1,6 +1,6 @@
 # hunspell-hs
 
-[![Build Status](https://travis-ci.com/ashutoshrishi/hunspell-hs.svg?branch=master)](https://travis-ci.com/ashutoshrishi/hunspell-hs)
+[![Haskell Stack Project CI](https://github.com/ashutoshrishi/hunspell-hs/actions/workflows/ci.yaml/badge.svg)](https://github.com/ashutoshrishi/hunspell-hs/actions/workflows/ci.yaml)
 
 Haskell bindings for Hunspell with thread-safety in mind. The goal was
 to be able to serve hunspell as an API in a webserver.
@@ -23,4 +23,3 @@ On Linux (use your package manager to install `libhunspell-dev`):
 On Macos:
 
     brew install hunspell
-    
