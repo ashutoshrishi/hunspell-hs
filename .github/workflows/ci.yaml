@@ -1,0 +1,38 @@
+name: Haskell Stack Project CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04 # Focal Fossa has hunspell-1.7
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup GHC
+        uses: actions/setup-haskell@v1.1.4
+        with:
+          ghc-version: "8.10.4" # Exact version of ghc to use
+          enable-stack: true
+
+      - name: Install libhunspell
+        run: |
+          sudo apt-get install libhunspell-dev
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.stack
+          key: ${{ runner.os }}-${{ hashFiles('stack.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        run: stack --no-terminal --install-ghc test --bench --only-dependencies
+
+      - name: Build
+        run: stack --no-terminal test --bench --no-run-benchmarks --haddock --no-haddock-deps
