@@ -16,7 +16,7 @@ jobs:
       - name: Setup GHC
         uses: actions/setup-haskell@v1.1.4
         with:
-          ghc-version: "8.10.4" # Exact version of ghc to use
+          ghc-version: "9.2.8" # Exact version of ghc to use
           enable-stack: true
 
       - name: Install libhunspell
