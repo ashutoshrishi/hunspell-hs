@@ -8,13 +8,11 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04 # Focal Fossa has hunspell-1.7
+    runs-on: ubuntu-22.04 # Jammy Jellyfish has hunspell-1.7
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Setup GHC
-        uses: actions/setup-haskell@v1.1.4
+      - uses: haskell/actions/setup@v2
         with:
           ghc-version: "9.2.8" # Exact version of ghc to use
           enable-stack: true
