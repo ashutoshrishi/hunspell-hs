@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-24.04 # Noble Numbat has hunspell-1.7
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: haskell/actions/setup@v2
         with:
           ghc-version: "9.10.3" # Exact version of ghc to use
@@ -22,7 +22,7 @@ jobs:
           sudo apt-get install libhunspell-dev
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.stack
           key: ${{ runner.os }}-${{ hashFiles('stack.yaml') }}
