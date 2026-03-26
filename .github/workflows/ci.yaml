@@ -19,18 +19,18 @@ jobs:
 
       - name: Install libhunspell
         run: |
-          sudo apt-get install libhunspell-dev
+          sudo apt-get install -y libhunspell-dev
 
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
           path: ~/.stack
-          key: ${{ runner.os }}-${{ hashFiles('stack.yaml') }}
+          key: ${{ runner.os }}-${{ hashFiles('stack.yaml', 'stack.yaml.lock') }}
           restore-keys: |
             ${{ runner.os }}-
 
       - name: Install dependencies
-        run: stack --no-terminal --install-ghc test --bench --only-dependencies
+        run: stack --no-terminal test --bench --only-dependencies
 
       - name: Build
         run: stack --no-terminal test --bench --no-run-benchmarks --haddock --no-haddock-deps
