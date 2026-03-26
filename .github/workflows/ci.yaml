@@ -8,31 +8,29 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04 # Focal Fossa has hunspell-1.7
+    runs-on: ubuntu-24.04 # Noble Numbat has hunspell-1.7
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup GHC
-        uses: actions/setup-haskell@v1.1.4
+      - uses: actions/checkout@v4
+      - uses: haskell-actions/setup@v2
         with:
-          ghc-version: "9.2.8" # Exact version of ghc to use
+          ghc-version: "9.10.3" # Exact version of ghc to use
           enable-stack: true
 
       - name: Install libhunspell
         run: |
-          sudo apt-get install libhunspell-dev
+          sudo apt-get install -y libhunspell-dev
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.stack
-          key: ${{ runner.os }}-${{ hashFiles('stack.yaml') }}
+          key: ${{ runner.os }}-${{ hashFiles('stack.yaml', 'stack.yaml.lock') }}
           restore-keys: |
             ${{ runner.os }}-
 
       - name: Install dependencies
-        run: stack --no-terminal --install-ghc test --bench --only-dependencies
+        run: stack --no-terminal test --bench --only-dependencies
 
       - name: Build
         run: stack --no-terminal test --bench --no-run-benchmarks --haddock --no-haddock-deps
