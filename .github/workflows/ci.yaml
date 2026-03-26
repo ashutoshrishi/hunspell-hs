@@ -8,13 +8,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # Jammy Jellyfish has hunspell-1.7
+    runs-on: ubuntu-24.04 # Noble Numbat has hunspell-1.7
 
     steps:
       - uses: actions/checkout@v2
       - uses: haskell/actions/setup@v2
         with:
-          ghc-version: "9.2.8" # Exact version of ghc to use
+          ghc-version: "9.10.3" # Exact version of ghc to use
           enable-stack: true
 
       - name: Install libhunspell
